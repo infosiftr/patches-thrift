@@ -1,0 +1,45 @@
+Index: compiler/cpp/src/generate/t_php_generator.cc
+===================================================================
+--- compiler/cpp/src/generate/t_php_generator.cc	(revision 990229)
++++ compiler/cpp/src/generate/t_php_generator.cc	(working copy)
+@@ -248,7 +248,7 @@
+   for (size_t i = 0; i < includes.size(); ++i) {
+     string package = includes[i]->get_name();
+     f_types_ <<
+-      "include_once $GLOBALS['THRIFT_ROOT'].'/packages/" << package << "/" << package << "_types.php';" << endl;
++      "include_once dirname(__FILE__).'/" << package << "_types.php';" << endl;
+   }
+   f_types_ << endl;
+ 
+@@ -259,7 +259,7 @@
+     f_consts_ <<
+       "<?php" << endl <<
+       autogen_comment() <<
+-      "include_once $GLOBALS['THRIFT_ROOT'].'/packages/" + program_name_ + "/" + program_name_ + "_types.php';" << endl <<
++      "include_once dirname(__FILE__).'/" + program_name_ + "_types.php';" << endl <<
+       endl <<
+       "$GLOBALS['" << program_name_ << "_CONSTANTS'] = array();" << endl <<
+       endl;
+@@ -271,7 +271,7 @@
+  */
+ string t_php_generator::php_includes() {
+   return
+-    string("include_once $GLOBALS['THRIFT_ROOT'].'/Thrift.php';\n\n");
++    string("include_once 'Thrift.php';\n\n");
+ }
+ 
+ /**
+@@ -920,11 +920,11 @@
+     php_includes();
+ 
+   f_service_ <<
+-    "include_once $GLOBALS['THRIFT_ROOT'].'/packages/" << program_name_ << "/" << program_name_ << "_types.php';" << endl;
++    "include_once dirname(__FILE__).'/" << program_name_ << "_types.php';" << endl;
+ 
+   if (tservice->get_extends() != NULL) {
+     f_service_ <<
+-      "include_once $GLOBALS['THRIFT_ROOT'].'/packages/" << tservice->get_extends()->get_program()->get_name() << "/" << tservice->get_extends()->get_name() << ".php';" << endl;
++      "include_once dirname(__FILE__).'/../" << tservice->get_extends()->get_program()->get_name() << "/" << tservice->get_extends()->get_name() << ".php';" << endl;
+   }
+ 
+   f_service_ <<

@@ -1,0 +1,23 @@
+Index: compiler/cpp/src/generate/t_php_generator.cc
+===================================================================
+--- compiler/cpp/src/generate/t_php_generator.cc	(revision 990090)
++++ compiler/cpp/src/generate/t_php_generator.cc	(working copy)
+@@ -2219,6 +2219,18 @@
+       result += ", ";
+     }
+     result += "$" + (*f_iter)->get_name();
++	
++	bool optionalField = (*f_iter)->get_value() != NULL;
++	t_type* t = get_true_type((*f_iter)->get_type());
++	bool shouldDisplay = optionalField && !(t->is_struct() || t->is_xception());
++	if (optionalField) {
++		if (shouldDisplay) {
++			result += " = " + render_const_value((*f_iter)->get_type(), (*f_iter)->get_value());
++		}
++		else {
++			result += " = null";
++		}
++	}
+   }
+   return result;
+ }

@@ -1,0 +1,48 @@
+Index: compiler/cpp/src/generate/t_perl_generator.cc
+===================================================================
+--- compiler/cpp/src/generate/t_perl_generator.cc	(revision 990090)
++++ compiler/cpp/src/generate/t_perl_generator.cc	(working copy)
+@@ -877,22 +877,37 @@
+ 
+   if (!tfunction->is_oneway() && xceptions.size() > 0) {
+     indent_down();
++    
++    indent(f_service_) << "};" << endl;
++    
++    indent(f_service_) << endl;
++    
++    indent(f_service_) << "if (0) {" << endl; // for easier elsif chaining (I'm lazy)
++    indent(f_service_) << "}" << endl;
++    
+     for (x_iter = xceptions.begin(); x_iter != xceptions.end(); ++x_iter) {
+-      f_service_ <<
+-        indent() << "}; if( UNIVERSAL::isa($@,'" <<
++      indent(f_service_) <<
++        "elsif( UNIVERSAL::isa($@,'" <<
+           perl_namespace((*x_iter)->get_type()->get_program()) <<
+           (*x_iter)->get_type()->get_name() <<
+           "') ){ " << endl;
+ 
+       if (!tfunction->is_oneway()) {
+         indent_up();
+-        f_service_ <<
+-          indent() << "$result->{" << (*x_iter)->get_name() << "} = $@;" << endl;
++        indent(f_service_) <<
++          "$result->{" << (*x_iter)->get_name() << "} = $@;" << endl;
+         indent_down();
+-        f_service_ << indent();
+       }
++      indent(f_service_) << "}" << endl;
+     }
+-    f_service_ << "}" << endl;
++    
++    // TODO add support for a callback here instead, so we could turn everything unknown into an UnexpectedException automatically instead
++    indent(f_service_) << "elsif ($@) {" << endl; // anything else we might have missed
++    indent_up();
++    indent(f_service_) << "use Data::Dumper;" << endl;
++    indent(f_service_) << "print STDERR 'thrift error: received unexpected exception: ', Dumper($@);" << endl;
++    indent_down();
++    indent(f_service_) << "}" << endl;;
+   }
+ 
+   // Shortcut out here for oneway functions
